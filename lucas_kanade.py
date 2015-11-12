@@ -1,8 +1,6 @@
 import numpy as np
 import cv2
 
-cv2.namedWindow("frame",1)
-
 #get from webcam
 cap = cv2.VideoCapture("video.mp4")
     
