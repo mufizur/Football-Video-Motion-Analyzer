@@ -55,8 +55,7 @@ def saveSitchedVideo(videoRightStr, videoMiddleStr, videoLeftStr):
 			videoOutput.write(frameStitchImg) 
 		else:
 			frameStitchImg = stitcher(frameLeftImg, frameMiddleImg, frameRightImg, videoHomographyLeft, videoHomographyRight)	
-			reSize = tuple((np.array(frameStitchImg.shape)[:2] * RESIZE_FACTOR).astype(int)[::-1])
-			frameStitchImg  = cv2.resize(frameStitchImg, reSize)
+			frameStitchImg  = cv2.resize(frameStitchImg, (0,0), fx = RESIZE_FACTOR, fy = RESIZE_FACTOR)
 			videoOutput.write(frameStitchImg) 
 		
 	videoOutput.release()
