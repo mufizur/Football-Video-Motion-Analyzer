@@ -53,34 +53,22 @@ def convert_points_list_to_array(pointsList):
 def crop_img(finalImg):
 	return finalImg[CROP_TOP:CROP_BOTTOM, CROP_RIGHT:CROP_LEFT]
 
-def topProjection(imgTitle, imgFormat):
-	img = cv2.imread(imgTitle+'.'+imgFormat)
+def topProjectionFirst(img):
 	mainImgPts  = np.array(convert_points_list_to_array(IMG_POINTS), dtype=np.float32)
 	remappedPts = np.array(convert_points_list_to_array(REMAPPED_POINTS), dtype=np.float32)
 	
 	homography, _  = cv2.findHomography(mainImgPts, remappedPts, cv2.RANSAC, 5.0)
-	#homography = la.inv(homography) 
-	print homography
-
-	row = 240
-	column = 1960
-
-	newColumn = (column*homography[0][0] + row*homography[0][1] + homography[0][2]) / (column*homography[2][0] + row*homography[2][1] + homography[2][2])
-	newRow    = (column*homography[1][0] + row*homography[1][1] + homography[1][2]) / (column*homography[2][0] + row*homography[2][1] + homography[2][2])
-	print newColumn, newRow
-
 	finalImg = cv2.warpPerspective(img, homography, (int(REMAPPED_HEIGHT+(IMG_OFFSET*5)), int(REMAPPED_WIDTH)))
 	finalImg = crop_img(finalImg)
-	print len(finalImg)
-	print len(finalImg[0])
+	return homography, finalImg
+
+def topProjection(img, homography):
+	finalImg = cv2.warpPerspective(img, homography, (int(REMAPPED_HEIGHT+(IMG_OFFSET*5)), int(REMAPPED_WIDTH)))
+	finalImg = crop_img(finalImg)
 	return finalImg
 
-
 def main():
-	topImg  = topProjection(IMG_TITLE, IMG_FORMAT)
-	edgeImg = cv2.Canny(topImg, 50, 70)
-	cv2.imwrite("TopView.png", topImg)
-	cv2.imwrite("TopViewEdge.png", edgeImg)
+	topImg  = topProjectionFirst(IMG_TITLE, IMG_FORMAT)
 	
 
 if __name__ == "__main__":

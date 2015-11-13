@@ -33,30 +33,31 @@ def saveBackgroundVideo(videoStr, backgroundImg):
 	videoFps        = int(video.get(cv.CV_CAP_PROP_FPS))
 	videoFrameCount = int(video.get(cv.CV_CAP_PROP_FRAME_COUNT))
 
-	imgMask = np.zeros(backgroundImg.shape, np.uint8)
-	imgCorners = np.array([[1833,129], [3050, 122], [5060, 600], [220, 600]])
-	cv2.fillPoly(imgMask, [imgCorners.reshape((-1, 1, 2))], (255,255,255))
 
 	for frameIndex in range(0, videoFrameCount):
 		if frameIndex == TOTAL_IMAGES:
 			break
 
 		_, frame  = video.read()
-		imgSelection = cv2.bitwise_and(imgMask, frame)
-		imgSubstration = cv2.absdiff(frame, backgroundImg)
-		imgSubstrationHSV = cv2.cvtColor(imgSubstration, cv2.COLOR_BGR2HSV)
-		_, _, imgSubstrationV = cv2.split(imgSubstrationHSV)
-		_, vThreshold = cv2.threshold(imgSubstrationV, 50, 255, cv2.THRESH_BINARY)
+		#frameSubtractedImg     = cv2.cvtColor(frameSubtractedImg,cv2.cv.CV_RGB2GRAY)
+		rows = len(backgroundImg)
+		columns = len(backgroundImg[0])
 
-		imgSelection = cv2.bitwise_and(imgSelection, imgSelection, mask=vThreshold)
-		imgFinal = cv2.cvtColor(imgSelection, cv2.COLOR_BGR2HSV)
-		imgFinal = imgFinal.astype(np.uint8)
-		print frameIndex
-		if frameIndex == 230:
-			break
-		videoOutput.write(imgFinal)
-		#imgSubstration = cv2.medianBlur(imgSubstration, 5)
-		#break;
+		frameSubtractedImg = copy.deepcopy(frame)
+		frameSubtractedImg = frameSubtractedImg.astype(np.int16)
+		frame = frame.astype(np.int16)
+		backgroundImg = backgroundImg.astype(np.int16)
+		print "--START FOR INDEX : "+str(frameIndex)+"--"
+
+		frameSubtractedImg = frame - backgroundImg
+		frameSubtractedImg = frameSubtractedImg.clip(0)
+		frameSubtractedImg = frameSubtractedImg.astype(np.uint8)
+
+		#frameSubtractedImg = cv2.cvtColor(frameSubtractedImg, cv.CV_GRAY2RGB) 
+		frameSubtractedImg = cv2.medianBlur(frameSubtractedImg, 5)
+		videoOutput.write(frameSubtractedImg)
+		cv2.imwrite("new.png", frameSubtractedImg)
+		break;
 		
 	videoOutput.release()
 	
