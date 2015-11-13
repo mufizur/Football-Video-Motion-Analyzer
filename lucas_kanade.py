@@ -2,7 +2,8 @@ import numpy as np
 import cv2
 
 #get from webcam
-cap = cv2.VideoCapture("video.mp4")
+cap = cv2.VideoCapture("subtracted.avi")
+cap2 = cv2.VideoCapture("football.mp4")
     
 #find params for corner detection via Shi-Tomasi
 shi_params = dict( maxCorners = 3000,
@@ -30,12 +31,16 @@ writer = cv2.VideoWriter('result.avi',
 							 (int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)),
 							 int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))))
 
-while(1):
-    #we need to continuously find good params to track
-	p_old = cv2.goodFeaturesToTrack(old_gray, mask = None, **shi_params)
+p_old = cv2.goodFeaturesToTrack(old_gray, mask = None, **shi_params)
+index = 0
+while(index < 300):
+	print index
+	index+=1
+	#we need to continuously find good params to track
 
     #read curr frame and grayscale it
 	ret,frame = cap.read()
+	_, writeframe = cap2.read()
 	fgray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
     
     #init p_new in case we wanted to use flags
@@ -59,14 +64,17 @@ while(1):
 		cv2.line(mask,(a,b),(c,d),(0,255,0),2)
 
 		#draws the new dot
-		cv2.circle(frame,(int(a),int(b)),4,(255,0,0),-1)
+		cv2.circle(writeframe,(int(a),int(b)),4,(255,0,0),-1)
+		
+		#cv2.circle(frame, (a,b) ,10 , (0,255,255))
 
     #this is if we want to add lines into the tracking to follow the path
-	img = cv2.add(frame,mask)
+	img = cv2.add(writeframe,mask)
 	writer.write(img)
     
     #update the previous frame and previous points
 	old_gray = fgray.copy()
+	p_old = p_new
 
 #clean up
 writer.release()
