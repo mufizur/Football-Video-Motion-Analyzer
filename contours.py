@@ -3,7 +3,7 @@ import cv2
 
 #get from webcam
 cap = cv2.VideoCapture("subtracted.avi")
-cap2 = cv2.VideoCapture("football.mp4")
+cap2 = cv2.VideoCapture("football_stitched.mp4")
     
 #find params for corner detection via Shi-Tomasi
 shi_params = dict( maxCorners = 3000,
@@ -27,7 +27,7 @@ writer = cv2.VideoWriter('contours.avi',
 							 int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))))
 
 index = 0
-while(index < 300):
+while(1):
 	print index
 	#we need to continuously find good params to track
 	p_old = cv2.goodFeaturesToTrack(old_gray, mask = None, **shi_params)
